@@ -1,0 +1,223 @@
+#Python
+
+# Project Description:
+
+# This program will play the game mastermind with one player and the computer being the codemaker. The computer will
+# randomly pick a combination of four colored pegs that the player has to figure out in the right order. The player will have
+# 6 colors, 0 to 5, to choose from, that can repeat, has to guess what the code of colored pegs is given the hints after
+# each guess. The hints are 1 and 2 where 1 means one of the peg guesses is the correct color but in the wrong position
+# and 2 means one of the colors peg guesses is the correct color and in the correct position. These hints will not be in the
+# right order according to the peg guesses. The player has ten guesses.
+
+
+# General Solution:
+
+# Have a four peg code be randomly generated. Show what number is what color and have the player guess 4 colors for
+# the four pegs in the code. Then display the code the player is guessing  and the clue they get and how many guesses the
+# player has. Then repeat through the player guessing till the player guesses correct or they use up all ten guesses.
+
+
+# Pseudocode:
+
+# While playing is true
+#   The computer will randomly choose a combination of four colored pegs for the code
+#   Print out that the secret code has been chosen and that the player has 10 trys
+#   While the code is unknown and the player hasn't used all their guesses
+#       If the numebr of guesses is less then 10
+#           Print the number of guesses left
+#       Print out the numbers that corespond with the colors that can be chosen
+#       Have the player guess 4 colors for the code
+#       Print the players guess
+#       Subtract 1 from the number of guesses
+#       Loop through the 4 colors of the guess
+#           If a color in the guess is a color in the code
+#               If the color is in the right position
+#                   Clue is 2
+#               Clue is 1
+#               If the guess is the same as the code
+#                   The code is known
+#       Print out the clues
+#   If the code is known
+#       Print "Correct" and how many guesses it took to find the code
+#   Else
+#       Print "No more guesses, the hidden colors were:"
+#       Print the code
+#   Get input if the player wants to play again
+#   If player input is Y
+#       Playing is true
+#   Else
+#       Playing is false
+# Print "Thankyou for playing. Good-bye"
+
+
+# Function Design:
+import random
+ALL_COLORS =['red', 'orange', 'yellow', 'green', 'blue', 'purple']
+
+
+
+def randomGeneration():
+    # function to generate a random code
+    code = []
+    
+    # loop to get all four colors
+    while len(code) < 4:
+        integer = random.randint(0,5)
+        code.append(ALL_COLORS[integer])
+    print("The secret code has been chosen.   You have 10 tries to guess the code.")
+    print(" ")
+    
+    return code
+
+
+
+def printOption():
+    # function to print the numbers coresponding wtih the colors to guess from
+    print("-----------------------------")
+    print("Make a guess of four colors:")
+    print("0 - red")
+    print("1 - orange")
+    print("2 - yellow")
+    print("3 - green")
+    print("4 - blue")
+    print("5 - purple")
+    print("-----------------------------")
+    return
+
+
+
+def guess():
+    # function to collect the players guess
+    guess = []
+    
+    # loop to get the 4 colors for the guess
+    while len(guess) < 4:
+        singleGuess = input("Guess color: ")
+        
+        # if statement to check for any errors in the guess
+        if inputGuessCheck(singleGuess) == True:
+            guess.append(ALL_COLORS[int(singleGuess)])
+            
+    return guess
+
+
+        
+def inputGuessCheck(guess):
+    # function to check the guess for any error
+    try:
+        guess = int(guess)
+        try:
+            if ALL_COLORS[guess] in ALL_COLORS:
+                return True
+        except:
+            print("Invalid guess, try again:")
+            return False
+    except:
+        print("Invalid number, try again:")
+        return False
+
+
+
+def clue2(index, guess, code):
+    # function to get the if there is a correct color
+    correctColor = []
+    index2 = []
+    for i in range(len(code)):
+        if i in index:
+            i = i
+        else:
+            for j in range(len(code)):
+                if j in index or j in index2:
+                    j = j
+                elif guess[j] == code[i]:
+                    correctColor.append(1)
+                    index2.append(j)
+                    i = i
+    return correctColor
+
+def checkGuess(guess, code):
+    # function to get the clue
+    clue = []
+    correctPosition = []
+    index = []
+    # loop to get the ones in the correct position
+    for i in range(len(guess)):
+        if guess[i] == code[i]:
+            correctPosition.append(2)
+            index.append(i)
+       
+    correctColor = clue2(index, guess, code)
+            
+    clue = correctColor + correctPosition
+    return clue
+
+
+
+def playGame(code):
+    # function to play the game Mastermind
+    numGuesses = 10
+    stillPlaying = True
+
+    # loop to keep getting guesses while the guess is not the code
+    # or until the player runs out of guesses
+    while stillPlaying == True:
+        if numGuesses == 0:
+            print(" ")
+            print("No more guesses, the hidden colors were:")
+            print(" ")
+            print(code)
+            stillPlaying = False
+            
+        else:
+            printOption()
+            Guess = guess()
+            print("-----------------------------")
+            print("Your guess is:")
+            print(Guess)
+            numGuesses -= 1
+            clue = checkGuess(Guess, code)
+            
+            if clue == [2, 2, 2, 2]:
+                print(" ")
+                print("Correct! You finished in ", 10 - numGuesses, " guesses")
+                stillPlaying = False
+                
+            else:
+                print(" ")
+                print("Your clue is: ", clue)
+                print(" ")
+                if numGuesses != 0:
+                    print("You have ", numGuesses, " guesses left")
+    return
+
+
+
+def playAgain():
+    # function to see if the plyaer wants to play again
+    print(" ")
+    again = input("Would you like to play again? (Y/N)")
+    print(" ")
+    playing = True
+    
+    if again == 'n' or again == 'N':
+        print("Thank you for playing.  Good-bye!")
+        playing = False
+        
+    elif again == 'y' or again == 'Y':
+        playing = True
+        
+    return playing
+
+
+
+def main(seedValue):
+    # function that impliments all the other functions to run the game
+    random.seed(seedValue)
+    playing = True
+    
+    while playing == True:
+        Code = randomGeneration()
+        playGame(Code)
+        playing = playAgain()
+        
+    return
